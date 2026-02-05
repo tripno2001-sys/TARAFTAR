@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Taraftar Oyu Prototip</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --panel-2: #1f2937;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --accent: #22c55e;
+      --accent-2: #f97316;
+      --danger: #ef4444;
+      --radius: 18px;
+      --shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: radial-gradient(circle at top, #1e293b, #0b1021 40%, #070b15 100%);
+      color: var(--text);
+      padding: 24px;
+    }
+
+    .phone {
+      width: min(100%, 390px);
+      min-height: 780px;
+      background: linear-gradient(180deg, #0f172a, #0b1222 65%);
+      border-radius: 36px;
+      border: 1px solid #334155;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .screen {
+      display: none;
+      height: 100%;
+      padding: 26px 20px 24px;
+      animation: fade 0.2s ease;
+    }
+
+    .screen.active {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .badge {
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 28px;
+      line-height: 1.15;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.2;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .card {
+      background: rgba(17, 24, 39, 0.88);
+      border: 1px solid #334155;
+      border-radius: var(--radius);
+      padding: 14px;
+    }
+
+    .teams {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 4px;
+    }
+
+    .team {
+      background: linear-gradient(160deg, #1f2937, #111827);
+      border: 1px solid #374151;
+      border-radius: 14px;
+      padding: 18px;
+      text-align: center;
+      font-size: 19px;
+      font-weight: 700;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 14px;
+      padding: 15px 16px;
+      font-size: 17px;
+      font-weight: 700;
+      color: #04130a;
+      background: var(--accent);
+      cursor: pointer;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+      margin-top: auto;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn.secondary {
+      background: #334155;
+      color: var(--text);
+    }
+
+    .btn.warn {
+      background: var(--accent-2);
+      color: #1a0e00;
+    }
+
+    .option-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .option {
+      width: 100%;
+      text-align: left;
+      background: #1f2937;
+      color: #e2e8f0;
+      border: 1px solid #334155;
+      border-radius: 14px;
+      padding: 16px;
+      font-size: 20px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .option.selected {
+      border-color: var(--accent);
+      background: linear-gradient(160deg, rgba(34, 197, 94, 0.25), rgba(34, 197, 94, 0.1));
+      box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.25);
+    }
+
+    .percent-wrap {
+      display: none;
+      margin-top: 10px;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .percent-wrap.show {
+      display: grid;
+      grid-template-columns: 1fr auto;
+    }
+
+    .bar {
+      width: 100%;
+      height: 8px;
+      border-radius: 99px;
+      background: #334155;
+      overflow: hidden;
+    }
+
+    .bar > span {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), #16a34a);
+    }
+
+    .scoreboard {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(17, 24, 39, 0.92);
+      border: 1px solid #334155;
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 6px;
+    }
+
+    .score {
+      font-size: 31px;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+
+    .minute {
+      color: #fbbf24;
+      font-weight: 700;
+    }
+
+    .countdown {
+      background: #111827;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 14px;
+      color: #f8fafc;
+      text-align: center;
+    }
+
+    .locked {
+      color: var(--accent);
+      font-weight: 700;
+      text-align: center;
+      min-height: 22px;
+    }
+
+    .result-big {
+      font-size: 22px;
+      font-weight: 800;
+      line-height: 1.3;
+      background: rgba(34, 197, 94, 0.12);
+      border: 1px solid rgba(34, 197, 94, 0.32);
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .chart {
+      display: grid;
+      gap: 12px;
+      margin-top: 6px;
+    }
+
+    .chart-row {
+      display: grid;
+      grid-template-columns: 106px 1fr 38px;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+    }
+
+    .chart-row .bar {
+      height: 12px;
+    }
+
+    .summary {
+      display: grid;
+      gap: 12px;
+      margin-top: 4px;
+    }
+
+    .summary .line {
+      padding: 13px;
+      border-radius: 12px;
+      background: #101a2e;
+      border: 1px solid #334155;
+      font-weight: 600;
+    }
+
+    .footnote {
+      margin-top: auto;
+      font-size: 13px;
+      color: #cbd5e1;
+      text-align: center;
+      background: rgba(148, 163, 184, 0.12);
+      border: 1px dashed #64748b;
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    @keyframes fade {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <main class="phone">
+    <section id="screen-1" class="screen active">
+      <div class="badge">Taraftar Oyu</div>
+      <h1>Bugünün Maçı</h1>
+      <div class="teams">
+        <div class="team">Home Team</div>
+        <div class="team">Away Team</div>
+      </div>
+      <button class="btn" data-next="2">Maça Katıl</button>
+    </section>
+
+    <section id="screen-2" class="screen">
+      <div class="badge">Maç Öncesi Oylama</div>
+      <h2>Maça nasıl başlamalıyız?</h2>
+      <div class="option-list" id="prematch-options">
+        <div class="card">
+          <button class="option" data-choice="🛡️ Defansif" data-pct="25">🛡️ Defansif</button>
+          <div class="percent-wrap"><div class="bar"><span style="width:25%"></span></div><strong>25%</strong></div>
+        </div>
+        <div class="card">
+          <button class="option" data-choice="⚖️ Dengeli" data-pct="45">⚖️ Dengeli</button>
+          <div class="percent-wrap"><div class="bar"><span style="width:45%"></span></div><strong>45%</strong></div>
+        </div>
+        <div class="card">
+          <button class="option" data-choice="⚔️ Ofansif" data-pct="30">⚔️ Ofansif</button>
+          <div class="percent-wrap"><div class="bar"><span style="width:30%"></span></div><strong>30%</strong></div>
+        </div>
+      </div>
+      <button id="start-match" class="btn warn" data-next="3" style="display:none;">Maç Başladı</button>
+    </section>
+
+    <section id="screen-3" class="screen">
+      <div class="scoreboard">
+        <div>
+          <div class="badge">Canlı</div>
+          <div class="score">1 – 0</div>
+        </div>
+        <div class="minute">Dakika 62</div>
+      </div>
+      <h2>Kritik Karar!</h2>
+      <div class="countdown">Karar süresi: <strong id="countdown">45</strong> sn</div>
+      <div class="option-list" id="live-options">
+        <button class="option" data-live="Değişiklik Yap">🔁 Değişiklik Yap</button>
+        <button class="option" data-live="Baskıyı Artır">🔥 Baskıyı Artır</button>
+        <button class="option" data-live="Oyunu Tut">🧠 Oyunu Tut</button>
+      </div>
+      <div id="vote-status" class="locked"></div>
+      <button id="show-result" class="btn" data-next="4" style="display:none;">Sonucu Gör</button>
+    </section>
+
+    <section id="screen-4" class="screen">
+      <div class="badge">Anlık Sonuç</div>
+      <h2>Taraftarın Kararı</h2>
+      <div class="result-big">Taraftarların %68’i Değişiklik İstedi</div>
+      <div class="chart">
+        <div class="chart-row">
+          <span>Değişiklik</span>
+          <div class="bar"><span style="width:68%"></span></div>
+          <strong>68</strong>
+        </div>
+        <div class="chart-row">
+          <span>Baskı</span>
+          <div class="bar"><span style="width:20%; background:linear-gradient(90deg,#f97316,#ea580c);"></span></div>
+          <strong>20</strong>
+        </div>
+        <div class="chart-row">
+          <span>Oyunu Tut</span>
+          <div class="bar"><span style="width:12%; background:linear-gradient(90deg,#64748b,#475569);"></span></div>
+          <strong>12</strong>
+        </div>
+      </div>
+      <button class="btn" data-next="5">Maç Sonu Özeti</button>
+    </section>
+
+    <section id="screen-5" class="screen">
+      <div class="badge">Final</div>
+      <h2>Maç Sonu</h2>
+      <div class="summary">
+        <div class="line">Senin oyun: <strong id="user-vote">Değişiklik Yap</strong></div>
+        <div class="line">Maç sonucu: <strong>1 – 1</strong></div>
+        <div class="line">Taraftarla uyumun: <strong>%62</strong></div>
+      </div>
+      <div class="footnote">Bu bir prototiptir. Gerçek oy ve veri içermez.</div>
+      <button id="restart" class="btn secondary">Başa Dön</button>
+    </section>
+  </main>
+
+  <script>
+    const screens = [...document.querySelectorAll('.screen')];
+    const prematchOptions = [...document.querySelectorAll('#prematch-options .option')];
+    const liveOptions = [...document.querySelectorAll('#live-options .option')];
+
+    const startMatchButton = document.getElementById('start-match');
+    const showResultButton = document.getElementById('show-result');
+    const voteStatus = document.getElementById('vote-status');
+    const countdownNode = document.getElementById('countdown');
+    const userVoteNode = document.getElementById('user-vote');
+
+    let selectedPrematch = null;
+    let selectedLive = null;
+    let timerInterval = null;
+
+    function goToScreen(id) {
+      screens.forEach((screen) => screen.classList.toggle('active', screen.id === `screen-${id}`));
+      if (id === 3) startCountdown();
+      if (id !== 3) clearInterval(timerInterval);
+    }
+
+    document.querySelectorAll('[data-next]').forEach((btn) => {
+      btn.addEventListener('click', () => goToScreen(btn.dataset.next));
+    });
+
+    prematchOptions.forEach((option) => {
+      option.addEventListener('click', () => {
+        selectedPrematch = option.dataset.choice;
+        prematchOptions.forEach((btn) => btn.classList.toggle('selected', btn === option));
+        document.querySelectorAll('#prematch-options .percent-wrap').forEach((bar) => bar.classList.add('show'));
+        startMatchButton.style.display = 'block';
+      });
+    });
+
+    function lockLiveSelection(selectedBtn) {
+      selectedLive = selectedBtn.dataset.live;
+      userVoteNode.textContent = selectedLive;
+      liveOptions.forEach((btn) => {
+        const isSelected = btn === selectedBtn;
+        btn.classList.toggle('selected', isSelected);
+        btn.disabled = true;
+        btn.style.opacity = isSelected ? '1' : '0.55';
+        btn.style.cursor = 'default';
+      });
+      voteStatus.textContent = 'Oyunuz alındı';
+      setTimeout(() => {
+        showResultButton.style.display = 'block';
+      }, 700);
+    }
+
+    liveOptions.forEach((option) => {
+      option.addEventListener('click', () => {
+        if (!selectedLive) {
+          lockLiveSelection(option);
+        }
+      });
+    });
+
+    function startCountdown() {
+      clearInterval(timerInterval);
+      let timeLeft = 45;
+      countdownNode.textContent = timeLeft;
+      timerInterval = setInterval(() => {
+        if (selectedLive) {
+          clearInterval(timerInterval);
+          return;
+        }
+        timeLeft -= 1;
+        countdownNode.textContent = Math.max(timeLeft, 0);
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          voteStatus.textContent = 'Süre doldu, varsayılan karar işlendi';
+          showResultButton.style.display = 'block';
+          liveOptions.forEach((btn) => {
+            btn.disabled = true;
+            btn.style.opacity = '0.55';
+            btn.style.cursor = 'default';
+          });
+          if (!selectedLive) {
+            selectedLive = 'Değişiklik Yap';
+            userVoteNode.textContent = selectedLive;
+          }
+        }
+      }, 1000);
+    }
+
+    document.getElementById('restart').addEventListener('click', () => {
+      selectedPrematch = null;
+      selectedLive = null;
+      voteStatus.textContent = '';
+      showResultButton.style.display = 'none';
+      startMatchButton.style.display = 'none';
+      countdownNode.textContent = '45';
+      prematchOptions.forEach((btn) => btn.classList.remove('selected'));
+      document.querySelectorAll('#prematch-options .percent-wrap').forEach((bar) => bar.classList.remove('show'));
+      liveOptions.forEach((btn) => {
+        btn.classList.remove('selected');
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.style.cursor = 'pointer';
+      });
+      userVoteNode.textContent = 'Değişiklik Yap';
+      goToScreen(1);
+    });
+  </script>
+</body>
+</html>
